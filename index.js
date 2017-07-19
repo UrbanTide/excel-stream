@@ -16,6 +16,8 @@ if (os.type() === 'Windows_NT') spawn = require('win-spawn')
 
 module.exports = function (options) {
 
+  var this = self;
+
   var read = through()
   var duplex
 
@@ -30,14 +32,16 @@ module.exports = function (options) {
 
   spawnArgs.push(filename)
 
+  self.csvParser = csv({
+    delimiter: ',',
+    columns: true,
+    relax: true
+  })
+
   var write = fs.createWriteStream(filename)
     .on('close', function () {
       var child = spawn(require.resolve('j/bin/j.njs'), spawnArgs)
-      child.stdout.pipe(csv({
-          delimiter: ',',
-          columns: true,
-          relax: true
-        }))
+      child.stdout.pipe(self.csvParser)
         .pipe(through(function (data) {
           var _data = {}
           for(var k in data) {
