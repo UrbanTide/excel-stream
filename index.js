@@ -16,7 +16,7 @@ if (os.type() === 'Windows_NT') spawn = require('win-spawn')
 
 module.exports = function (options) {
 
-  var this = self;
+  var self = this;
 
   var read = through()
   var duplex
