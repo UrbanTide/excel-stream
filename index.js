@@ -38,11 +38,19 @@ module.exports = function (options) {
     relax: true
   })
 
+  var columnCount = null;
+
   var write = fs.createWriteStream(filename)
     .on('close', function () {
       var child = spawn(require.resolve('j/bin/j.njs'), spawnArgs)
       child.stdout.pipe(csvParser)
         .pipe(through(function (data) {
+          var numberOfColumns = Object.keys(data).length;
+          if( columnCount == null ){
+            columnCount = numberOfColumns;
+          } else if( columnCount != numberOfColumns ){
+            return;
+          }
           var _data = {}
           for(var k in data) {
             var value = data[k].trim()
