@@ -32,7 +32,7 @@ module.exports = function (options) {
 
   spawnArgs.push(filename)
 
-  self.csvParser = csv({
+  var csvParser = csv({
     delimiter: ',',
     columns: true,
     relax: true
@@ -41,7 +41,7 @@ module.exports = function (options) {
   var write = fs.createWriteStream(filename)
     .on('close', function () {
       var child = spawn(require.resolve('j/bin/j.njs'), spawnArgs)
-      child.stdout.pipe(self.csvParser)
+      child.stdout.pipe(csvParser)
         .pipe(through(function (data) {
           var _data = {}
           for(var k in data) {
@@ -60,7 +60,10 @@ module.exports = function (options) {
       })
     })
 
-  return (duplex = duplexer(write, read))
+
+  var result = (duplex = duplexer(write, read));
+  result.csvParser = csvParser;
+  return result;
 
 }
 
